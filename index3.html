@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Happy New Month!</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    .center{
+      height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,#0f172a,#0b1220);
+      color:#fff;text-align:center;padding:2rem;
+    }
+    h1{font-size:3rem;margin:0 0 0.5rem}
+    p{margin:0 0 1.5rem;opacity:.9}
+    button{
+      padding:.6rem 1.2rem;border-radius:12px;border:2px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);color:#fff;font-weight:600;cursor:pointer;
+      box-shadow:0 6px 18px rgba(2,6,23,.6);
+    }
+    canvas{position:fixed;left:0;top:0;pointer-events:none}
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <div class="center">
+    <h1>Happy New Month to You! 🎉</h1>
+    <p>Wishing you a month full of wins, tiny joys, and big coffee cups.</p>
+    <button onclick="burst()">Celebrate</button>
+  </div>
+
+  <script>
+ 
+    const c = document.getElementById('confetti');
+    const ctx = c.getContext('2d');
+    let W, H, particles = [];
+
+    function resize(){
+      W = c.width = innerWidth;
+      H = c.height = innerHeight;
+    }
+    addEventListener('resize', resize);
+    resize();
+
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+
+    function makeParticle(x,y){
+      return {
+        x, y,
+        vx: rand(-2,2),
+        vy: rand(-6,-2),
+        size: rand(6,12),
+        color: `hsl(${Math.floor(rand(0,360))} 80% 60%)`,
+        rot: rand(0,Math.PI*2),
+        drag: 0.99,
+        gravity: 0.12,
+        lifetime: rand(60,140)
+      };
+    }
+
+    function burst(){
+      const cx = W/2, cy = H/3;
+      for(let i=0;i<120;i++) particles.push(makeParticle(cx+rand(-60,60), cy+rand(-30,30)));
+    }
+
+    function loop(){
+      ctx.clearRect(0,0,W,H);
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.vx *= p.drag;
+        p.vy += p.gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += 0.1;
+        p.lifetime--;
+        ctx.save();
+        ctx.translate(p.x,p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+        ctx.restore();
+        if(p.y > H + 50 || p.lifetime <= 0) particles.splice(i,1);
+      }
+      requestAnimationFrame(loop);
+    }
+
+    
+    burst();
+    loop();
+  </script>
+</body>
+</html>
+
